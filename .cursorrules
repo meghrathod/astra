@@ -1,0 +1,114 @@
+# Astra Guardian - Cursor Rules
+
+## Project Overview
+Astra Guardian is an AI-powered network security application that uses flow-based analysis to classify encrypted network traffic. The system employs a two-model architecture:
+1. **XGBoost Classifier**: Identifies known applications (87 classes)
+2. **Autoencoder Anomaly Detector**: Detects unknown/anomalous traffic patterns
+
+## Environment Setup
+
+### Virtual Environment
+- **ALWAYS use `.venv` virtual environment** for this project
+- Activate before running any scripts: `source .venv/bin/activate` (Linux/Mac) or `.venv\Scripts\activate` (Windows)
+- Install dependencies in the virtual environment: `pip install -r requirements.txt`
+- All Python commands should be run with the virtual environment activated
+- When creating new scripts or running commands, ensure `.venv` is active
+
+## Code Style & Standards
+
+### Python
+- Use type hints for function parameters and return types
+- Follow PEP 8 style guidelines
+- Use descriptive variable and function names
+- Add docstrings to all functions and classes
+- Maximum line length: 100 characters
+
+### Data Handling
+- Always handle infinite values and NaN values explicitly
+- Use appropriate data types to reduce memory usage (e.g., float32, uint8)
+- Clean data before model training
+- Use StandardScaler for feature scaling
+- Preserve original data when filtering (use `.copy()`)
+
+### Model Training
+- Always validate data shapes before training
+- Use random_state for reproducibility
+- Print progress and metrics during training
+- Save all artifacts (models, scalers, encoders) for inference
+- Use memory-efficient data types in pandas
+
+### File Organization
+- Keep preprocessing logic in `astra_guardian/preprocessing.py`
+- Keep model definitions in `astra_guardian/models.py`
+- Training scripts go in `scripts/`
+- Tests go in `tests/`
+- Notebooks go in `notebooks/`
+
+## Key Conventions
+
+### Column Names
+- `L7Protocol`: Target variable for classification (application protocol)
+- `ProtocolName`: Application name (used for filtering normal traffic)
+- Always check for column existence before using
+
+### Model Artifacts
+- Save models to `artifacts/` directory
+- Autoencoder: `autoencoder.h5` (Keras format)
+- Classifier: `classifier.joblib` (XGBoost)
+- Scalers: `scaler.joblib`, `scaler_normal.joblib`
+- Label encoder: `label_encoder.joblib`
+
+### Normal Traffic Definition
+Normal traffic apps: `['GOOGLE', 'YOUTUBE', 'FACEBOOK', 'MICROSOFT', 'CLOUDFLARE', 'AMAZON']`
+- Used for training the autoencoder anomaly detector
+- Filter before data cleaning to preserve `ProtocolName` column
+
+## Testing
+- Write tests for all preprocessing functions
+- Write tests for model creation functions
+- Run tests before committing: `pytest tests/`
+
+## Dependencies
+- pandas, numpy: Data manipulation
+- scikit-learn: Preprocessing and utilities
+- xgboost: Classification model
+- tensorflow/keras: Autoencoder model
+- matplotlib, seaborn: Visualization
+
+## Common Patterns
+
+### Data Loading
+```python
+# Always specify data types for memory efficiency
+dtype_mapping = {...}
+df = pd.read_csv(path, dtype=dtype_mapping)
+```
+
+### Data Cleaning
+```python
+# Handle infinite values
+df.replace([np.inf, -np.inf], np.nan, inplace=True)
+df.dropna(inplace=True)
+```
+
+### Model Training
+```python
+# Always print progress
+print(f"Training with {n_samples} samples, {n_features} features")
+# Evaluate after training
+score = model.score(X_test, y_test)
+print(f"Accuracy: {score:.4f}")
+```
+
+## Error Handling
+- Check for column existence before accessing
+- Validate data shapes before model operations
+- Provide informative error messages
+- Use fallbacks when possible (e.g., ProtocolName vs L7Protocol)
+
+## Performance
+- Use appropriate data types (float32 instead of float64)
+- Delete large intermediate variables and call gc.collect()
+- Use batch processing for large datasets
+- Consider GPU acceleration when available (but provide CPU fallback)
+

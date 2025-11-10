@@ -48,6 +48,11 @@ def create_classifier(n_classes, n_estimators=100, max_depth=5, learning_rate=0.
     """
     # Set the device based on the use_gpu flag
     tree_method = 'gpu_hist' if use_gpu else 'hist'
+    
+    # For M2 MacBook Air: limit threads to reduce memory pressure
+    # Use fewer threads to avoid memory issues on systems with limited RAM
+    import os
+    n_jobs = min(4, os.cpu_count() or 1)  # Limit to 4 cores for memory efficiency
 
     # Create the XGBoost classifier
     classifier = XGBClassifier(
@@ -58,7 +63,8 @@ def create_classifier(n_classes, n_estimators=100, max_depth=5, learning_rate=0.
         num_class=n_classes,
         tree_method=tree_method,
         random_state=42,
-        n_jobs=-1  # Use all available CPU cores
+        n_jobs=n_jobs,  # Limited for M2 MacBook Air memory efficiency
+        max_bin=256  # Reduce bins for less memory usage
     )
 
     return classifier

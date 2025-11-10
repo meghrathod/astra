@@ -4,7 +4,10 @@ scikit-learn
 xgboost
 tensorflow
 jupyter
-kaggle
+kagglehub
 matplotlib
 seaborn
 pytest
+joblib
+h5py
+psutil
