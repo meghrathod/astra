@@ -24,7 +24,7 @@ def clean_and_prepare_data(df: pd.DataFrame, target_column: str = 'L7Protocol'):
     # Define columns to drop (identifiers and potentially redundant features)
     cols_to_drop = [
         'Flow.ID', 'Source.IP', 'Destination.IP', 'Timestamp',
-        'ProtocolName', 'Source.Port', 'Destination.Port'
+        'ProtocolName', 'Source.Port', 'Destination.Port', 'Label'
     ]
 
     # Drop columns that exist in the DataFrame
